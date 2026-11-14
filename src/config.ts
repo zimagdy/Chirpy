@@ -1,7 +1,53 @@
-type APIConfig = {
-  fileserverHits: number;
+import z from "zod";
+import type { MigrationConfig } from "drizzle-orm/migrator";
+
+// Load env
+process.loadEnvFile();
+
+// validation
+const envObject = z.object({
+  DB_URL: z.string().startsWith("postgres://"),
+  PORT: z.coerce.number().positive().default(8080),
+  PLATFORM: z.string(),
+});
+
+const envOrThrow = () => {
+  const env = envObject.parse(process.env);
+  return env;
 };
 
-export const Config: APIConfig = {
-  fileserverHits: 0,
+const env = envOrThrow();
+
+// Config Types
+type APIConfig = {
+  fileserverHits: number;
+  port: number;
+  platform: string;
+};
+
+type DBConfig = {
+  url: string;
+  migrationConfig: MigrationConfig;
+};
+
+type Config = {
+  api: APIConfig;
+  db: DBConfig;
+};
+
+// Initalize configs
+const migrationConfig: MigrationConfig = {
+  migrationsFolder: "./src/db/migrations",
+};
+
+export const config: Config = {
+  api: {
+    fileserverHits: 0,
+    port: env.PORT,
+    platform: env.PLATFORM,
+  },
+  db: {
+    url: env.DB_URL,
+    migrationConfig,
+  },
 };
