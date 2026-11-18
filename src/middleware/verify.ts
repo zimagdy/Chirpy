@@ -1,8 +1,9 @@
 import type { Request, Response, NextFunction } from "express";
 import { config } from "../config.js";
 import { error404 } from "./errorHandler.js";
-import { getUser } from "../db/queries/users.js";
+import { getUserById } from "../db/queries/users.js";
 import { getChirps, getChirpy } from "../db/queries/chirps.js";
+import { getBearerToken, validateJWT } from "../utils/auth.js";
 
 export const middlewareLogResponses = (
   req: Request,
@@ -51,13 +52,16 @@ export const middlewareCheckUser = async (
   next: NextFunction,
 ) => {
   try {
-    const userId = req.body.userId;
+    const token = getBearerToken(req);
+    const userId = validateJWT(token, config.api.key);
 
-    const user = await getUser(userId);
+    const user = await getUserById(userId);
 
     if (!user) {
       throw new error404("This user does not exist");
     }
+
+    req.body.userId = user.id;
 
     next();
   } catch (error) {

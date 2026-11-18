@@ -9,6 +9,7 @@ const envObject = z.object({
   DB_URL: z.string().startsWith("postgres://"),
   PORT: z.coerce.number().positive().default(8080),
   PLATFORM: z.string(),
+  SECRET_KEY: z.string(),
 });
 
 const envOrThrow = () => {
@@ -23,6 +24,7 @@ type APIConfig = {
   fileserverHits: number;
   port: number;
   platform: string;
+  key: string;
 };
 
 type DBConfig = {
@@ -45,6 +47,7 @@ export const config: Config = {
     fileserverHits: 0,
     port: env.PORT,
     platform: env.PLATFORM,
+    key: env.SECRET_KEY,
   },
   db: {
     url: env.DB_URL,
