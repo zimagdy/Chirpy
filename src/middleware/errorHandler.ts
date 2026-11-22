@@ -42,6 +42,10 @@ export const errorHandler = (
     return res.status(404).json({
       error: err.message,
     });
+  } else if (err instanceof error403) {
+    return res.status(403).json({
+      error: err.message,
+    });
   } else {
     return res.status(500).json({
       error: "Something went wrong on our end",

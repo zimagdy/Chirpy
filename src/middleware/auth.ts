@@ -1,6 +1,6 @@
 import type { Request, Response, NextFunction } from "express";
 import { getBearerToken, validateJWT } from "../utils/auth.js";
-import { error400 } from "./errorHandler.js";
+import { error401 } from "./errorHandler.js";
 import { config } from "../config.js";
 
 // Extract Bearer token
@@ -47,11 +47,11 @@ export const validateCredentials = (
     const userPassword = req.body.password;
 
     if (email === undefined || email.length === 0) {
-      throw new error400("Email can not empty");
+      throw new error401("Email can not empty");
     }
 
     if (userPassword === undefined || userPassword.length === 0) {
-      throw new error400("Password can not empty");
+      throw new error401("Password can not empty");
     }
 
     req.email = email;

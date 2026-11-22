@@ -1,7 +1,11 @@
 import { Router } from "express";
-import { tokenExtractor, validateCredentials } from "../middleware/auth.js";
+import {
+  authMiddleware,
+  tokenExtractor,
+  validateCredentials,
+} from "../middleware/auth.js";
 import { config } from "../config.js";
-import { createUser, getUserByEmail } from "../db/queries/users.js";
+import { createUser, getUserByEmail, updateUser } from "../db/queries/users.js";
 import { checkPasswordHash, hashPassword } from "../utils/password.js";
 import { makeJWT, makeRefreshToken } from "../utils/auth.js";
 import {
@@ -101,3 +105,30 @@ usersRouter.post("/api/revoke/", tokenExtractor, async (req, res) => {
     throw e;
   }
 });
+
+usersRouter.put(
+  "/api/users/",
+  validateCredentials,
+  authMiddleware,
+  async (req, res) => {
+    try {
+      const hashedPassword = await hashPassword(req.userPassword!);
+
+      const updatedUser = await updateUser(
+        req.userId!,
+        req.email!,
+        hashedPassword,
+      );
+
+      const { password, ...result } = updatedUser;
+
+      res.status(200).json({
+        message: "Updated successfully",
+        ...result,
+      });
+    } catch (e) {
+      console.error("Updated Failed ", e);
+      throw e;
+    }
+  },
+);
