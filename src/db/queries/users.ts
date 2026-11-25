@@ -46,6 +46,16 @@ export const updateUser = async (
   return result;
 };
 
+export const upgradeChirpyRed = async (userId: string) => {
+  const [result] = await db
+    .update(users)
+    .set({ isChirpyRed: true })
+    .where(eq(users.id, userId))
+    .returning();
+
+  return result;
+};
+
 export const deleteUsers = async () => {
   await db.delete(users);
 };

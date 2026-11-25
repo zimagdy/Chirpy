@@ -10,11 +10,10 @@ export const middlewareLogResponses = (
     res.on("finish", () => {
       // Initialize variable
       const statusCode = res.statusCode;
-      const statusCodesValid = [200, 201, 202];
       const method = req.method;
       const url = req.url;
 
-      if (!statusCodesValid.includes(statusCode)) {
+      if (statusCode >= 400) {
         console.log(`
     [NON-OK] ${method} ${url} - Status: ${statusCode}`);
       }

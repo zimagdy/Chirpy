@@ -5,14 +5,20 @@ import {
   validateCredentials,
 } from "../middleware/auth.js";
 import { config } from "../config.js";
-import { createUser, getUserByEmail, updateUser } from "../db/queries/users.js";
+import {
+  createUser,
+  getUserByEmail,
+  updateUser,
+  upgradeChirpyRed,
+} from "../db/queries/users.js";
 import { checkPasswordHash, hashPassword } from "../utils/password.js";
-import { makeJWT, makeRefreshToken } from "../utils/auth.js";
+import { getAPIKey, makeJWT, makeRefreshToken } from "../utils/auth.js";
 import {
   createRefreshToken,
   getRefreshToken,
   revokeUpdate,
 } from "../db/queries/refreshToken.js";
+import { error401, error404 } from "../middleware/errorHandler.js";
 
 export const usersRouter = Router();
 
@@ -132,3 +138,28 @@ usersRouter.put(
     }
   },
 );
+
+// Upgrade chirpy red
+usersRouter.post("/api/polka/webhooks", async (req, res) => {
+  const apiKey = getAPIKey(req);
+
+  if (!apiKey) {
+    throw new error401("Permission denied");
+  }
+
+  const event = req.body.event;
+
+  if (!event || event !== "user.upgraded") {
+    return res.status(204).json({});
+  }
+
+  const userId = req.body.data.userId;
+
+  const result = await upgradeChirpyRed(userId);
+
+  if (!result) {
+    throw new error404("This user can not be found");
+  }
+
+  res.status(204).json({});
+});

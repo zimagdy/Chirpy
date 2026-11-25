@@ -10,6 +10,7 @@ const envObject = z.object({
   PORT: z.coerce.number().positive().default(8080),
   PLATFORM: z.string(),
   SECRET_KEY: z.string(),
+  POLKA_KEY: z.string().nonempty(),
 });
 
 const envOrThrow = () => {
@@ -25,6 +26,7 @@ type APIConfig = {
   port: number;
   platform: string;
   key: string;
+  polkaKey: string;
 };
 
 type DBConfig = {
@@ -48,6 +50,7 @@ export const config: Config = {
     port: env.PORT,
     platform: env.PLATFORM,
     key: env.SECRET_KEY,
+    polkaKey: env.POLKA_KEY,
   },
   db: {
     url: env.DB_URL,

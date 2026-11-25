@@ -66,3 +66,15 @@ export const makeRefreshToken = (): string => {
   const refreshToken = randomBytes(256).toString("hex");
   return refreshToken;
 };
+
+export const getAPIKey = (req: Request) => {
+  const auth = req.headers.authorization;
+
+  if (!auth) {
+    throw new error401("Authorization Failed");
+  }
+
+  const apiKey = auth.split(" ")[1];
+
+  return apiKey;
+};
